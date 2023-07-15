@@ -3,13 +3,19 @@ package main
 import (
 	"fmt"
 	"juxn/pkg/juxn"
+	"os"
 )
 
 func main() {
 	vm := juxn.NewVM()
-	vm.Memory[0] = 0x80
-	vm.Memory[1] = 0x12
-	vm.Run(100)
+	err := vm.LoadROM("tests.rom")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(1)
+	}
+	vm.Run(1000000)
+	if vm.Halted {
+		fmt.Printf("halted: %s\n", vm.HaltedBecause)
+	}
 	fmt.Println("completed!")
-	fmt.Println("Memory = %v", vm.WStack)
 }

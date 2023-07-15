@@ -2,6 +2,7 @@ package juxn
 
 import (
 	"fmt"
+	"os"
 )
 
 type VM struct {
@@ -27,6 +28,18 @@ func (vm *VM) Run(steps int) {
 	for i := 0; i < steps && !vm.Halted; i++ {
 		vm.ExecuteInstruction(vm.FetchInstruction())
 	}
+}
+
+func (vm *VM) LoadROM(filename string) error {
+	rom, err := os.ReadFile(filename)
+	if err != nil {
+		return err
+	}
+	if len(rom) > 65536 {
+		return fmt.Errorf("%s: too large to fit in memory (%d > 65536 bytes)", filename, len(rom))
+	}
+	copy(vm.Memory, rom)
+	return nil
 }
 
 func (vm *VM) Halt(reason string) {
