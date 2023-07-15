@@ -78,9 +78,22 @@ func (i Instruction) Push(val uint16) {
 	}
 	ok := stk.Push(val, i.Short)
 	if !ok {
-		i.Vm.Halted = true
-		i.Vm.HaltedBecause = "push to full stack"
+		i.Vm.Halt("stack overflow")
 	}
+}
+
+func (i Instruction) PushByte(val byte) {
+	wasShort := i.Short
+	i.Short = false
+	i.Push(uint16(val))
+	i.Short = wasShort
+}
+
+func (i Instruction) PushShort(val uint16) {
+	wasShort := i.Short
+	i.Short = true
+	i.Push(val)
+	i.Short = wasShort
 }
 
 func (i Instruction) Pop() uint16 {
@@ -96,8 +109,23 @@ func (i Instruction) Pop() uint16 {
 		v, ok = stk.Pop(i.Short)
 	}
 	if !ok {
-		i.Vm.Halted = true
-		i.Vm.HaltedBecause = "pop from empty stack"
+		i.Vm.Halt("stack underflow")
 	}
+	return v
+}
+
+func (i Instruction) PopByte() byte {
+	wasShort := i.Short
+	i.Short = false
+	v := byte(i.Pop())
+	i.Short = wasShort
+	return v
+}
+
+func (i Instruction) PopShort() uint16 {
+	wasShort := i.Short
+	i.Short = true
+	v := i.Pop()
+	i.Short = wasShort
 	return v
 }
