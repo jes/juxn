@@ -1,0 +1,31 @@
+uxn docs: https://wiki.xxiivv.com/site/uxn.html
+varvara docs: https://wiki.xxiivv.com/site/varvara.html
+uxntal docs: https://wiki.xxiivv.com/site/uxntal.html
+uxntal opcodes: https://wiki.xxiivv.com/site/uxntal_reference.html
+
+keyboard input goes to the "console" device
+
+Are there test ROMs anywhere?
+  https://github.com/DeltaF1/uxn-instruction-tests
+  https://git.sr.ht/~rabbits/uxn/tree/main/item/projects/utils/tests.tal
+
+What would a full uxn operating system look like? maybe https://wiki.xxiivv.com/site/potato.html ?
+Is PotatoOS any good?
+
+What would a hardware uxn machine look like?
+ - want a microcontroller running the cpu emulator (Pi Pico? ESP32?)
+ - usb keyboard interface
+ - usb mouse interface
+ - vga(?) screen interface
+ - audio output (+ builtin speaker?)
+ - SD card storage? CF storage?
+ - nice box
+What would uxn on SCAMP look like?
+ - graphical output
+ - real-time clock
+ - mouse input
+ - probably too slow, most of this code is written by artists and runs on modern comps
+For that matter, could you make an RC2014 emulator for SCAMP?
+ - 64k bytes = 32k words
+Can I do advent of code in uxn this year?
+
