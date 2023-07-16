@@ -29,6 +29,8 @@ For that matter, could you make an RC2014 emulator for SCAMP?
  - 64k bytes = 32k words
 Can I do advent of code in uxn this year?
 
+As of 484e5060bb2cab7d03c931cdc21601ee91ae8880 tests.rom passes
+
 Bugs in juxn:
  - when the vm halts it still carries on finishing the current instruction, which may leave the machine in an incorrect state
  - all the devices are unimplemented
