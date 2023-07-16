@@ -139,7 +139,11 @@ func (vm *VM) ExecuteInstruction(instr Instruction) {
 			vm.Pc = uint16(int32(vm.Pc) + int32(int8(instr.Pop())))
 		}
 	case STH:
-		vm.RStack.Push(instr.Pop(), instr.Short)
+		if instr.Return {
+			vm.WStack.Push(instr.Pop(), instr.Short)
+		} else {
+			vm.RStack.Push(instr.Pop(), instr.Short)
+		}
 	case LDZ:
 		instr.Push(vm.ReadMemory(uint16(instr.PopByte()), instr.Short))
 	case STZ:
