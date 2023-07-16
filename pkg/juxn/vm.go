@@ -5,6 +5,11 @@ import (
 	"os"
 )
 
+type Device interface {
+	Dei(addr byte) byte
+	Deo(addr byte, val byte)
+}
+
 type VM struct {
 	Pc            uint16
 	Halted        bool
@@ -12,16 +17,27 @@ type VM struct {
 	RStack        *Stack
 	WStack        *Stack
 	Memory        []byte
+	DevPage       []byte
+	Dev           []Device
 }
 
 func NewVM() *VM {
-	return &VM{
-		Pc:     0,
-		Halted: false,
-		Memory: make([]byte, 65536),
-		RStack: NewStack(),
-		WStack: NewStack(),
+	v := &VM{
+		Pc:      0x100,
+		Halted:  false,
+		Memory:  make([]byte, 65536),
+		RStack:  NewStack(),
+		WStack:  NewStack(),
+		DevPage: make([]byte, 256),
+		Dev:     make([]Device, 16),
 	}
+	v.SetDevice(0x00, &SystemDevice{Vm: v})
+	v.SetDevice(0x10, &ConsoleDevice{Vm: v})
+	return v
+}
+
+func (vm *VM) SetDevice(addr byte, dev Device) {
+	vm.Dev[addr>>8] = dev
 }
 
 func (vm *VM) Run(steps int) {
@@ -38,7 +54,7 @@ func (vm *VM) LoadROM(filename string) error {
 	if len(rom) > 65536 {
 		return fmt.Errorf("%s: too large to fit in memory (%d > 65536 bytes)", filename, len(rom))
 	}
-	copy(vm.Memory, rom)
+	copy(vm.Memory[0x100:], rom)
 	return nil
 }
 
@@ -149,15 +165,21 @@ func (vm *VM) ExecuteInstruction(instr Instruction) {
 		val := instr.Pop()
 		vm.WriteMemory(addr, val, instr.Short)
 	case DEI:
-		dev := instr.PopByte()
-		_ = dev
-		vm.Halt("DEI not implemented")
+		devaddr := instr.PopByte()
+		d := vm.Dev[devaddr>>8]
+		if d != nil {
+			instr.Push(uint16(d.Dei(devaddr)))
+		} else {
+			instr.Push(uint16(vm.DevPage[devaddr]))
+		}
 	case DEO:
-		dev := instr.PopByte()
+		devaddr := instr.PopByte()
 		val := instr.Pop()
-		_ = dev
-		_ = val
-		vm.Halt("DEO not implemented")
+		vm.DevPage[devaddr] = byte(val)
+		d := vm.Dev[devaddr>>8]
+		if d != nil {
+			d.Deo(devaddr, byte(val))
+		}
 	case ADD:
 		b := instr.Pop()
 		a := instr.Pop()
@@ -173,7 +195,11 @@ func (vm *VM) ExecuteInstruction(instr Instruction) {
 	case DIV:
 		b := instr.Pop()
 		a := instr.Pop()
-		instr.Push(a / b)
+		if b == 0 {
+			vm.Halt("divide by 0")
+		} else {
+			instr.Push(a / b)
+		}
 	case AND:
 		b := instr.Pop()
 		a := instr.Pop()

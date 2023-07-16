@@ -1,5 +1,7 @@
 package juxn
 
+import "fmt"
+
 const (
 	BRK = 0x00
 	INC = 0x01
@@ -51,12 +53,12 @@ type Instruction struct {
 
 func DecodeInstruction(opcode byte) Instruction {
 	i := Instruction{
-		Opcode: opcode,
+		Opcode:   opcode,
+		Operator: opcode & 0x1f,
+		Short:    (opcode & 0x20) != 0,
+		Return:   (opcode & 0x40) != 0,
+		Keep:     (opcode & 0x80) != 0,
 	}
-	i.Operator = opcode & 0x1f
-	i.Short = (opcode & 0x20) != 0
-	i.Return = (opcode & 0x40) != 0
-	i.Keep = (opcode & 0x80) != 0
 	if i.Operator == BRK && i.Opcode != BRK {
 		i.Keep = false
 		switch i.Opcode {
@@ -128,4 +130,94 @@ func (i Instruction) PopShort() uint16 {
 	v := i.Pop()
 	i.Short = wasShort
 	return v
+}
+
+func (i Instruction) String() string {
+	var op string
+	switch i.Operator {
+	case BRK:
+		op = "BRK"
+	case INC:
+		op = "INC"
+	case POP:
+		op = "POP"
+	case NIP:
+		op = "NIP"
+	case SWP:
+		op = "SWP"
+	case ROT:
+		op = "ROT"
+	case DUP:
+		op = "DUP"
+	case OVR:
+		op = "OVR"
+	case EQU:
+		op = "EQU"
+	case NEQ:
+		op = "NEQ"
+	case GTH:
+		op = "GTH"
+	case LTH:
+		op = "LTH"
+	case JMP:
+		op = "JMP"
+	case JCN:
+		op = "JCN"
+	case JSR:
+		op = "JSR"
+	case STH:
+		op = "STH"
+	case LDZ:
+		op = "LDZ"
+	case STZ:
+		op = "STZ"
+	case LDR:
+		op = "LDR"
+	case STR:
+		op = "STR"
+	case LDA:
+		op = "LDA"
+	case STA:
+		op = "STA"
+	case DEI:
+		op = "DEI"
+	case DEO:
+		op = "DEO"
+	case ADD:
+		op = "ADD"
+	case SUB:
+		op = "SUB"
+	case MUL:
+		op = "MUL"
+	case DIV:
+		op = "DIV"
+	case AND:
+		op = "AND"
+	case ORA:
+		op = "ORA"
+	case EOR:
+		op = "EOR"
+	case SFT:
+		op = "SFT"
+	case LIT:
+		op = "LIT"
+	case JCI:
+		op = "JCI"
+	case JMI:
+		op = "JMI"
+	case JSI:
+		op = "JSI"
+	default:
+		op = fmt.Sprintf("<0x%02x>", i.Opcode)
+	}
+	if i.Short {
+		op += "2"
+	}
+	if i.Keep {
+		op += "k"
+	}
+	if i.Return {
+		op += "r"
+	}
+	return op
 }

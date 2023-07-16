@@ -79,14 +79,14 @@ func (s *Stack) PeekShort() (uint16, bool) {
 	if s.ptr < 2 {
 		return 0, false
 	}
-	return uint16(s.data[s.ptr]) + 256*uint16(s.data[s.ptr-1]), true
+	return uint16(s.data[s.ptr-1]) + 256*uint16(s.data[s.ptr-2]), true
 }
 
 func (s *Stack) PeekByte() (byte, bool) {
 	if s.ptr < 1 {
 		return 0, false
 	}
-	return s.data[s.ptr], true
+	return s.data[s.ptr-1], true
 }
 
 func (s *Stack) Size() int {
