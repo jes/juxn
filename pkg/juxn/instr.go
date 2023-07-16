@@ -49,6 +49,7 @@ type Instruction struct {
 	Return   bool // operate on the return stack
 	Keep     bool // operate without consuming items
 	Vm       *VM
+	SpOff    int // stack pointer offset
 }
 
 func DecodeInstruction(opcode byte) Instruction {
@@ -73,7 +74,7 @@ func DecodeInstruction(opcode byte) Instruction {
 	return i
 }
 
-func (i Instruction) Push(val uint16) {
+func (i *Instruction) Push(val uint16) {
 	stk := i.Vm.WStack
 	if i.Return {
 		stk = i.Vm.RStack
@@ -84,21 +85,21 @@ func (i Instruction) Push(val uint16) {
 	}
 }
 
-func (i Instruction) PushByte(val byte) {
+func (i *Instruction) PushByte(val byte) {
 	wasShort := i.Short
 	i.Short = false
 	i.Push(uint16(val))
 	i.Short = wasShort
 }
 
-func (i Instruction) PushShort(val uint16) {
+func (i *Instruction) PushShort(val uint16) {
 	wasShort := i.Short
 	i.Short = true
 	i.Push(val)
 	i.Short = wasShort
 }
 
-func (i Instruction) Pop() uint16 {
+func (i *Instruction) Pop() uint16 {
 	stk := i.Vm.WStack
 	if i.Return {
 		stk = i.Vm.RStack
@@ -106,7 +107,11 @@ func (i Instruction) Pop() uint16 {
 	var v uint16
 	var ok bool
 	if i.Keep {
-		v, ok = stk.Peek(i.Short)
+		v, ok = stk.PeekOffset(i.Short, i.SpOff)
+		i.SpOff -= 1
+		if i.Short {
+			i.SpOff -= 1
+		}
 	} else {
 		v, ok = stk.Pop(i.Short)
 	}
@@ -116,7 +121,7 @@ func (i Instruction) Pop() uint16 {
 	return v
 }
 
-func (i Instruction) PopByte() byte {
+func (i *Instruction) PopByte() byte {
 	wasShort := i.Short
 	i.Short = false
 	v := byte(i.Pop())
@@ -124,7 +129,7 @@ func (i Instruction) PopByte() byte {
 	return v
 }
 
-func (i Instruction) PopShort() uint16 {
+func (i *Instruction) PopShort() uint16 {
 	wasShort := i.Short
 	i.Short = true
 	v := i.Pop()
@@ -132,7 +137,7 @@ func (i Instruction) PopShort() uint16 {
 	return v
 }
 
-func (i Instruction) String() string {
+func (i *Instruction) String() string {
 	var op string
 	switch i.Operator {
 	case BRK:

@@ -30,7 +30,6 @@ For that matter, could you make an RC2014 emulator for SCAMP?
 Can I do advent of code in uxn this year?
 
 Bugs in juxn:
- - when an opcode that takes multiple operands is in keep mode, it gets the top-of-stack operand multiple times instead of the correct operands
  - the relative address stuff should take signed int8's instead of unsigned byte's
  - when the vm halts it still carries on finishing the current instruction, which may leave the machine in an incorrect state
  - all the devices are unimplemented

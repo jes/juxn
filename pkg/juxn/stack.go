@@ -67,26 +67,38 @@ func (s *Stack) PopByte() (byte, bool) {
 }
 
 func (s *Stack) Peek(short bool) (uint16, bool) {
+	return s.PeekOffset(short, 0)
+}
+
+func (s *Stack) PeekShort() (uint16, bool) {
+	return s.PeekShortOffset(0)
+}
+
+func (s *Stack) PeekByte() (byte, bool) {
+	return s.PeekByteOffset(0)
+}
+
+func (s *Stack) PeekOffset(short bool, offset int) (uint16, bool) {
 	if short {
-		return s.PeekShort()
+		return s.PeekShortOffset(offset)
 	} else {
-		val, ok := s.PeekByte()
+		val, ok := s.PeekByteOffset(offset)
 		return uint16(val), ok
 	}
 }
 
-func (s *Stack) PeekShort() (uint16, bool) {
-	if s.ptr < 2 {
+func (s *Stack) PeekShortOffset(offset int) (uint16, bool) {
+	if s.ptr+offset < 2 {
 		return 0, false
 	}
-	return uint16(s.data[s.ptr-1]) + 256*uint16(s.data[s.ptr-2]), true
+	return uint16(s.data[s.ptr+offset-1]) + 256*uint16(s.data[s.ptr+offset-2]), true
 }
 
-func (s *Stack) PeekByte() (byte, bool) {
-	if s.ptr < 1 {
+func (s *Stack) PeekByteOffset(offset int) (byte, bool) {
+	if s.ptr+offset < 1 {
 		return 0, false
 	}
-	return s.data[s.ptr-1], true
+	return s.data[s.ptr+offset-1], true
 }
 
 func (s *Stack) Size() int {
