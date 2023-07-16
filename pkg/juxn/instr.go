@@ -137,7 +137,7 @@ func (i *Instruction) PopShort() uint16 {
 	return v
 }
 
-func (i *Instruction) String() string {
+func (i Instruction) String() string {
 	var op string
 	switch i.Operator {
 	case BRK:

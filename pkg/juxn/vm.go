@@ -119,8 +119,7 @@ func (vm *VM) ExecuteInstruction(instr Instruction) {
 		if instr.Short {
 			vm.Pc = instr.Pop()
 		} else {
-			// TODO: signed
-			vm.Pc += instr.Pop()
+			vm.Pc = uint16(int32(vm.Pc) + int32(int8(instr.Pop())))
 		}
 	case JCN:
 		addr := instr.Pop()
@@ -129,8 +128,7 @@ func (vm *VM) ExecuteInstruction(instr Instruction) {
 			if instr.Short {
 				vm.Pc = addr
 			} else {
-				// TODO: signed
-				vm.Pc += addr
+				vm.Pc = uint16(int32(vm.Pc) + int32(int8(addr)))
 			}
 		}
 	case JSR:
@@ -138,8 +136,7 @@ func (vm *VM) ExecuteInstruction(instr Instruction) {
 		if instr.Short {
 			vm.Pc = instr.Pop()
 		} else {
-			// TODO: signed
-			vm.Pc += instr.Pop()
+			vm.Pc = uint16(int32(vm.Pc) + int32(int8(instr.Pop())))
 		}
 	case STH:
 		vm.RStack.Push(instr.Pop(), instr.Short)
@@ -151,12 +148,11 @@ func (vm *VM) ExecuteInstruction(instr Instruction) {
 		vm.WriteMemory(uint16(addr), val, instr.Short)
 	case LDR:
 		reladdr := instr.PopByte()
-		// TODO: signed
-		instr.Push(vm.ReadMemory(vm.Pc+uint16(reladdr), instr.Short))
+		instr.Push(vm.ReadMemory(uint16(int32(vm.Pc)+int32(int8(reladdr))), instr.Short))
 	case STR:
 		reladdr := instr.PopByte()
 		val := instr.Pop()
-		vm.WriteMemory(vm.Pc+uint16(reladdr), val, instr.Short)
+		vm.WriteMemory(uint16(int32(vm.Pc)+int32(int8(reladdr))), val, instr.Short)
 	case LDA:
 		addr := instr.PopShort()
 		instr.Push(vm.ReadMemory(addr, instr.Short))

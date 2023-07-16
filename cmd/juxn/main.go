@@ -16,6 +16,7 @@ func main() {
 	vm.Run(1000000)
 	if vm.Halted {
 		fmt.Printf("halted: %s\n", vm.HaltedBecause)
+		fmt.Printf("Wstack = %v\n", vm.WStack)
 	}
 	fmt.Println("completed!")
 }
