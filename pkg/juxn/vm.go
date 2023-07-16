@@ -215,8 +215,8 @@ func (vm *VM) ExecuteInstruction(instr Instruction) {
 	case SFT:
 		shift := instr.PopByte()
 		a := instr.Pop()
-		bitsLeft := (shift & 0x80) >> 4
-		bitsRight := (shift & 0x08)
+		bitsLeft := (shift & 0xf0) >> 4
+		bitsRight := (shift & 0x0f)
 		instr.Push((a >> bitsRight) << bitsLeft)
 	default:
 		vm.Halt(fmt.Sprintf("Not implemented operator %02x (opcode=%02x)\n", instr.Operator, instr.Opcode))
