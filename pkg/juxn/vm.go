@@ -231,8 +231,7 @@ func (vm *VM) FetchInstruction() Instruction {
 }
 
 func (vm *VM) FetchOperand(short bool) uint16 {
-	var v uint16
-	v = uint16(vm.Memory[vm.Pc])
+	v := uint16(vm.Memory[vm.Pc])
 	vm.Pc += 1
 	if short {
 		v = v*256 + uint16(vm.Memory[vm.Pc])
