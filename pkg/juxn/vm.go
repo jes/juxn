@@ -6,8 +6,8 @@ import (
 )
 
 type Device interface {
-	Dei(addr byte) byte
-	Deo(addr byte, val byte)
+	Input(addr byte) byte
+	Output(addr byte, val byte)
 }
 
 type VM struct {
@@ -168,7 +168,7 @@ func (vm *VM) ExecuteInstruction(instr Instruction) {
 		devaddr := instr.PopByte()
 		d := vm.Dev[devaddr>>8]
 		if d != nil {
-			instr.Push(uint16(d.Dei(devaddr)))
+			instr.Push(uint16(d.Input(devaddr)))
 		} else {
 			instr.Push(uint16(vm.DevPage[devaddr]))
 		}
@@ -178,7 +178,7 @@ func (vm *VM) ExecuteInstruction(instr Instruction) {
 		vm.DevPage[devaddr] = byte(val)
 		d := vm.Dev[devaddr>>8]
 		if d != nil {
-			d.Deo(devaddr, byte(val))
+			d.Output(devaddr, byte(val))
 		}
 	case ADD:
 		b := instr.Pop()
