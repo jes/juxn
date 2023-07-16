@@ -2,6 +2,7 @@ package juxn
 
 import (
 	"fmt"
+	"os"
 )
 
 type ConsoleDevice struct {
@@ -15,6 +16,6 @@ func (d *ConsoleDevice) Input(addr byte) byte {
 
 func (d *ConsoleDevice) Output(addr byte, val byte) {
 	if addr&0xf == 0x8 {
-		fmt.Printf("%c", val)
+		os.Stdout.Write([]byte{val})
 	}
 }
