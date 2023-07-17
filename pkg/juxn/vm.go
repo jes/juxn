@@ -6,8 +6,8 @@ import (
 )
 
 type Device interface {
-	Input(addr byte) byte
-	Output(addr byte, val byte)
+	Input(addr byte) uint16
+	Output(addr byte, val uint16)
 }
 
 type VM struct {
@@ -37,7 +37,7 @@ func NewVM() *VM {
 }
 
 func (vm *VM) SetDevice(addr byte, dev Device) {
-	vm.Dev[addr>>8] = dev
+	vm.Dev[addr>>4] = dev
 }
 
 func (vm *VM) Run(steps int) {
@@ -166,7 +166,7 @@ func (vm *VM) ExecuteInstruction(instr Instruction) {
 		vm.WriteMemory(addr, val, instr.Short)
 	case DEI:
 		devaddr := instr.PopByte()
-		d := vm.Dev[devaddr>>8]
+		d := vm.Dev[devaddr>>4]
 		if d != nil {
 			instr.Push(uint16(d.Input(devaddr)))
 		} else {
@@ -176,9 +176,9 @@ func (vm *VM) ExecuteInstruction(instr Instruction) {
 		devaddr := instr.PopByte()
 		val := instr.Pop()
 		vm.DevPage[devaddr] = byte(val)
-		d := vm.Dev[devaddr>>8]
+		d := vm.Dev[devaddr>>4]
 		if d != nil {
-			d.Output(devaddr, byte(val))
+			d.Output(devaddr, val)
 		}
 	case ADD:
 		b := instr.Pop()
@@ -218,6 +218,18 @@ func (vm *VM) ExecuteInstruction(instr Instruction) {
 		bitsLeft := (shift & 0xf0) >> 4
 		bitsRight := (shift & 0x0f)
 		instr.Push((a >> bitsRight) << bitsLeft)
+	case JCI:
+		cond := instr.PopByte()
+		addr := vm.FetchOperand(true)
+		if cond != 0 {
+			vm.Pc += addr
+		}
+	case JMI:
+		vm.Pc += vm.FetchOperand(true)
+	case JSI:
+		addr := vm.FetchOperand(true)
+		vm.RStack.PushShort(vm.Pc)
+		vm.Pc += addr
 	default:
 		vm.Halt(fmt.Sprintf("Not implemented operator %02x (opcode=%02x)\n", instr.Operator, instr.Opcode))
 	}
