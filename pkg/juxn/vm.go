@@ -231,7 +231,7 @@ func (vm *VM) ExecuteInstruction(instr Instruction) {
 		vm.RStack.PushShort(vm.Pc)
 		vm.Pc += addr
 	default:
-		vm.Halt(fmt.Sprintf("Not implemented operator %02x (opcode=%02x)\n", instr.Operator, instr.Opcode))
+		vm.Halt(fmt.Sprintf("%v: Not implemented operator %02x (opcode=%02x)\n", instr, instr.Operator, instr.Opcode))
 	}
 }
 
